@@ -6,17 +6,17 @@ import { sendEmail } from "@/helper/mailer";
 
 connect();
 
-export async function POST(request: NextRequest) {
+export const POST = async (request: NextRequest) => {
     try {
         console.log("Request received");
         // Extract the request body and validate it
         const reqBody = await request.json();
-        const { username, email, password } = reqBody;
+        const { name, username, email, password } = reqBody;
 
         // Check if the email and password are provided
-        if (!email || !password) {
+        if (!name || !username || !email || !password) {
             return NextResponse.json(
-                { error: "Please provide an email and password" },
+                { error: "Please provide an name, username, email and password" },
                 { status: 400 }
             );
         }
@@ -36,15 +36,19 @@ export async function POST(request: NextRequest) {
 
         // Create a new user
         const newUser = new User({
+            name,   
             username,
             email,
             password: hashedPassword,
         });
+        
+        // Save the new user to the database
         const savedUser = await newUser.save();
-        console.log(savedUser);
-
         // Send a verification email
-        await sendEmail({ email, emailType: "VERIFY", userId: savedUser._id });
+        await sendEmail({ email: String(email), emailType: "VERIFY", userId: String(savedUser._id) });
+
+        // // delete the user
+        // await User.findByIdAndDelete(savedUser._id);
 
         // Return the saved user with a 201 status code
         return NextResponse.json({
