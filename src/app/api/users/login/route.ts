@@ -59,7 +59,7 @@ export const POST = async (request: NextRequest) => {
         });
 
         response.cookies.set("token", token, {
-            httpOnly: true
+            // httpOnly: true
         })
 
         return response;
